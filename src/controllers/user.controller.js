@@ -1,13 +1,15 @@
 import connection from "../database/database.js";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 export async function signUp(req, res) {
   const { name, email, password } = req.body;
 
-  const emailExists = connection.query(`SELECT * FROM users WHERE email = $1`, [
-    email,
-  ]);
-
+  const emailExists = await connection.query(
+    `SELECT * FROM users WHERE email = $1;`,
+    [email]
+  );
+  console.log(emailExists.rowCount);
   if (emailExists.rowCount !== 0) return res.sendStatus(409);
 
   try {
@@ -15,15 +17,44 @@ export async function signUp(req, res) {
 
     const user = await connection.query(
       `
-    INSERT INTO users (name, email, password) 
-    VALUES ($1, $2, $3);
+    INSERT INTO users (name, email, password, "createdAt") 
+    VALUES ($1, $2, $3,$4);
     `,
-      [name, email, passwordHash]
+      [name, email, passwordHash, new Date()]
     );
 
-    return res.status(201).send(user);
+    return res.status(201).send("Cadastrado");
   } catch (error) {
     console.error(error);
     res.status(500).send("Algo deu errado no servidor!");
+  }
+}
+
+export async function signIn(req, res) {
+  const { email, password } = req.body;
+
+  try {
+    const userExists = await connection.query(
+      `SELECT * FROM user WHERE email = $1`,
+      [email]
+    );
+    console.log(userExists.rows);
+    if (userExists.rowCount !== 1) return res.sendStatus(401);
+
+    const passwordExists = bcrypt.compareSync(password, userExists.password);
+
+    if (!passwordExists)
+      return res.status(401).send("check again user or password");
+
+    const token = uuid();
+
+    await connection.query(
+      `INSERT INTO sessions (user_id, token) VALUES ($1,$2);`,
+      [userExists.id, token]
+    );
+
+    res.status(202).send(token);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 }
