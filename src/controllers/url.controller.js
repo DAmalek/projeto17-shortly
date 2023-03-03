@@ -58,12 +58,13 @@ export async function openUrl(req, res) {
   const { shortUrl } = req.params;
 
   try {
-    const response = await db.query('SELECT * FROM urls WHERE "shortUrl"=$1', [
-      shortUrl,
-    ]);
+    const response = await connection.query(
+      'SELECT * FROM urls WHERE "shortUrl"=$1',
+      [shortUrl]
+    );
     if (response.rowCount === 0) return res.sendStatus(404);
 
-    await db.query('UPDATE urls SET "visitCount"=$1 WHERE id=$2;', [
+    await connection.query('UPDATE urls SET "visitCount"=$1 WHERE id=$2;', [
       response.rows[0].visitCount + 1,
       response.rows[0].id,
     ]);
@@ -78,7 +79,7 @@ export async function getUserData(req, res) {
   const user = res.locals.session;
 
   try {
-    const query = await db.query(
+    const query = await connection.query(
       `SELECT users.id, users.name, CAST(COALESCE(SUM(urls."visitCount"), 0) AS INTEGER) as "visitCount",
       CASE
         WHEN COUNT(urls.id) = 0 THEN json_build_array()
@@ -109,12 +110,14 @@ export async function destroyUrl(req, res) {
   const { id } = req.params;
   const user = res.locals.session;
   try {
-    const query = await db.query("SELECT * FROM urls WHERE id=$1", [id]);
+    const query = await connection.query("SELECT * FROM urls WHERE id=$1", [
+      id,
+    ]);
     if (query.rowCount === 0) return res.sendStatus(404);
 
     if (user.id !== query.rows[0].userId) return res.sendStatus(401);
 
-    await db.query("DELETE FROM urls WHERE id=$1;", [id]);
+    await connection.query("DELETE FROM urls WHERE id=$1;", [id]);
 
     res.sendStatus(204);
   } catch (error) {
