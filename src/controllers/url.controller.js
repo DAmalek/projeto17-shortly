@@ -100,7 +100,7 @@ export async function destroyUrl(req, res) {
   const objUrl = res.locals.url;
 
   try {
-    const deleta_link = await connection.query(
+    const destroyUrl = await connection.query(
       `DELETE FROM urls WHERE id = $1;`,
       [objUrl.id]
     );

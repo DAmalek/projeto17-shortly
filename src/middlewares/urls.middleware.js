@@ -33,7 +33,7 @@ export async function uservalidation(req, res, next) {
       [token]
     );
 
-    if (sessionExist.rowCount !== 1) {
+    if (sessionExist.rowCount === 0) {
       return res.status(401).send("need to signIn");
     }
 

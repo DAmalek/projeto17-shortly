@@ -25,7 +25,7 @@ urlRoute.post(
 );
 urlRoute.get("/urls/:id", getUrlById);
 urlRoute.get("/urls/open/:shortUrl", redirectValidation, openUrl);
-urlRoute.get("/urls/me", uservalidation, getUserData);
+urlRoute.get("/users/me", uservalidation, getUserData);
 urlRoute.delete("/urls/:id", deleteValidation, destroyUrl);
 
 export default urlRoute;
