@@ -38,10 +38,12 @@ export async function signIn(req, res) {
       `SELECT * FROM users WHERE email = $1`,
       [email]
     );
-    console.log(userExists.rows);
+    console.log(userExists.rows[0]);
     if (userExists.rowCount !== 1) return res.sendStatus(401);
 
-    const passwordExists = bcrypt.compareSync(password, userExists.password);
+    const user = userExists.rows[0];
+
+    const passwordExists = bcrypt.compareSync(password, user.password);
 
     if (!passwordExists)
       return res.status(401).send("check again user or password");
@@ -49,11 +51,11 @@ export async function signIn(req, res) {
     const token = uuid();
 
     await connection.query(
-      `INSERT INTO sessions (user_id, token) VALUES ($1,$2);`,
-      [userExists.id, token]
+      `INSERT INTO sessions (user_id, token, "createdAt") VALUES ($1,$2,$3);`,
+      [user.id, token, new Date()]
     );
 
-    res.status(202).send(token);
+    return res.status(200).send(token);
   } catch (error) {
     res.status(500).send(error.message);
   }
