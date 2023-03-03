@@ -33,7 +33,9 @@ export async function getUrlById(req, res) {
   const { id } = req.params;
 
   try {
-    const getUrl = await db.query(`SELECT * FROM urls WHERE id = $1;`, [id]);
+    const getUrl = await connection.query(`SELECT * FROM urls WHERE id = $1;`, [
+      id,
+    ]);
 
     if (getUrl.rowCount !== 1) {
       return res.sendStatus(404);
@@ -41,13 +43,28 @@ export async function getUrlById(req, res) {
 
     const url = getUrl.rows[0];
 
-    const resBody = {
+    const body = {
       id: url.id,
       shortUrl: url.shortUrl,
       url: url.url,
     };
 
-    return res.status(200).send(resBody);
+    return res.status(200).send(body);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+export async function openUrl(req, res) {
+  const objUrl = res.locals.url;
+
+  try {
+    const visitCounter = objUrl.visitCount++;
+
+    const updateVisit = connection.query(
+      `UPDATE urls SET "visitCount" = $1 WHERE id = $2;`,
+      [visitCounter, objUrl.id]
+    );
+    res.redirect(objUrl.url);
   } catch (error) {
     res.status(500).send(error.message);
   }
