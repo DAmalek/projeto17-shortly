@@ -96,3 +96,16 @@ export async function getUserData(req, res) {
     res.status(500).send(error.message);
   }
 }
+export async function destroyUrl(req, res) {
+  const objUrl = res.locals.url;
+
+  try {
+    const deleta_link = await connection.query(
+      `DELETE FROM urls WHERE id = $1;`,
+      [objUrl.id]
+    );
+    return res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
