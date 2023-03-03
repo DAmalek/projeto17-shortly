@@ -38,7 +38,7 @@ export async function signIn(req, res) {
       `SELECT * FROM users WHERE email = $1`,
       [email]
     );
-    console.log(userExists.rows[0]);
+
     if (userExists.rowCount !== 1) return res.sendStatus(401);
 
     const user = userExists.rows[0];
@@ -55,7 +55,7 @@ export async function signIn(req, res) {
       [user.id, token, new Date()]
     );
 
-    return res.status(200).send(token);
+    return res.status(200).send({ token: token });
   } catch (error) {
     res.status(500).send(error.message);
   }
