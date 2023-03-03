@@ -55,18 +55,23 @@ export async function getUrlById(req, res) {
   }
 }
 export async function openUrl(req, res) {
-  const objUrl = res.locals.url;
+  const { shortUrl } = req.params;
 
   try {
-    const visitCounter = objUrl.visitCount + 1;
+    const response = await db.query('SELECT * FROM urls WHERE "shortUrl"=$1', [
+      shortUrl,
+    ]);
+    if (response.rowCount === 0) return res.sendStatus(404);
 
-    const updateVisit = connection.query(
-      `UPDATE urls SET "visitCount" = $1 WHERE id = $2;`,
-      [visitCounter, objUrl.id]
-    );
-    res.redirect(objUrl.url);
+    await db.query('UPDATE urls SET "visitCount"=$1 WHERE id=$2;', [
+      response.rows[0].visitCount + 1,
+      response.rows[0].id,
+    ]);
+
+    res.redirect(response.rows[0].url);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error(error);
+    res.status(500).send(error);
   }
 }
 export async function getUserData(req, res) {

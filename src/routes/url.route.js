@@ -24,7 +24,7 @@ urlRoute.post(
   createShorten
 );
 urlRoute.get("/urls/:id", getUrlById);
-urlRoute.get("/urls/open/:shortUrl", redirectValidation, openUrl);
+urlRoute.get("/urls/open/:shortUrl", openUrl);
 urlRoute.get("/users/me", authValidation, getUserData);
 urlRoute.delete("/urls/:id", authValidation, destroyUrl);
 
