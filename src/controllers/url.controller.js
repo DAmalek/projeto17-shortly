@@ -97,15 +97,19 @@ export async function getUserData(req, res) {
   }
 }
 export async function destroyUrl(req, res) {
-  const objUrl = res.locals.url;
-
+  const { id } = req.params;
+  const user = res.locals.session;
   try {
-    const destroyUrl = await connection.query(
-      `DELETE FROM urls WHERE id = $1;`,
-      [objUrl.id]
-    );
-    return res.sendStatus(204);
+    const query = await db.query("SELECT * FROM urls WHERE id=$1", [id]);
+    if (query.rowCount === 0) return res.sendStatus(404);
+
+    if (user.id !== query.rows[0].userId) return res.sendStatus(401);
+
+    await db.query("DELETE FROM urls WHERE id=$1;", [id]);
+
+    res.sendStatus(204);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error(error);
+    res.status(500).send(error);
   }
 }

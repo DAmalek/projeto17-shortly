@@ -9,6 +9,7 @@ import {
 import { validateSchema } from "../middlewares/schemaValidator.js";
 import { tokenValidation } from "../middlewares/token.validation.js";
 import {
+  authValidation,
   deleteValidation,
   redirectValidation,
   uservalidation,
@@ -26,6 +27,6 @@ urlRoute.post(
 urlRoute.get("/urls/:id", getUrlById);
 urlRoute.get("/urls/open/:shortUrl", redirectValidation, openUrl);
 urlRoute.get("/users/me", uservalidation, getUserData);
-urlRoute.delete("/urls/:id", deleteValidation, destroyUrl);
+urlRoute.delete("/urls/:id", authValidation, destroyUrl);
 
 export default urlRoute;
