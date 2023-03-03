@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createShorten,
   destroyUrl,
+  getRanking,
   getUrlById,
   getUserData,
   openUrl,
@@ -27,5 +28,6 @@ urlRoute.get("/urls/:id", getUrlById);
 urlRoute.get("/urls/open/:shortUrl", openUrl);
 urlRoute.get("/users/me", authValidation, getUserData);
 urlRoute.delete("/urls/:id", authValidation, destroyUrl);
+urlRoute.get("/ranking", getRanking);
 
 export default urlRoute;
