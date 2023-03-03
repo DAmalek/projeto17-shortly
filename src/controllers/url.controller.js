@@ -58,7 +58,7 @@ export async function openUrl(req, res) {
   const objUrl = res.locals.url;
 
   try {
-    const visitCounter = objUrl.visitCount++;
+    const visitCounter = objUrl.visitCount + 1;
 
     const updateVisit = connection.query(
       `UPDATE urls SET "visitCount" = $1 WHERE id = $2;`,
@@ -91,7 +91,7 @@ export async function getUserData(req, res) {
     GROUP BY users.id;`;
     const userData = await connection.query(query, [userSession.user_id]);
 
-    res.send(userData.rows[0]);
+    return res.send(userData.rows[0]);
   } catch (error) {
     res.status(500).send(error.message);
   }

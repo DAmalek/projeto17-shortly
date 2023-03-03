@@ -37,7 +37,7 @@ export async function uservalidation(req, res, next) {
       return res.status(401).send("need to signIn");
     }
 
-    res.locals.userSession = sessionExist.rows[0];
+    return (res.locals.userSession = sessionExist.rows[0]);
   } catch (error) {
     res.status(500).send(error.message);
   }
