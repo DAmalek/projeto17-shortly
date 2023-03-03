@@ -8,12 +8,12 @@ export async function createShorten(req, res) {
 
   try {
     const InsertShortenUrl = await connection.query(
-      `INSERT INTO urls ("shortenUrl", url, "userId") VALUES ($1, $2, $3);`,
-      [shortenUrl, url, user_id]
+      `INSERT INTO urls ("shortUrl", url, "user_id","visitCount","createdAt") VALUES ($1, $2, $3, $4, $5);`,
+      [shortenUrl, url, user_id, 0, new Date()]
     );
 
     const getUrlId = await connection.query(
-      `SELECT * FROM urls WHERE "shortenUrl" = $1;`,
+      `SELECT * FROM urls WHERE "shortUrl" = $1;`,
       [shortenUrl]
     );
     const url_id = getUrlId.rows[0].id;
@@ -25,6 +25,7 @@ export async function createShorten(req, res) {
 
     return res.status(201).send(body);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.log("controller");
+    return res.status(500).send(error.message);
   }
 }
