@@ -1,7 +1,8 @@
 import connection from "../database/database.js";
+import { nanoid } from "nanoid";
 
 export async function createShorten(req, res) {
-  const { url } = res.locals.url;
+  const url = res.locals.url;
   const user_id = res.locals.userId;
   const shortenUrl = nanoid(8);
 
@@ -15,14 +16,14 @@ export async function createShorten(req, res) {
       `SELECT * FROM urls WHERE "shortenUrl" = $1;`,
       [shortenUrl]
     );
-    const url_id = getUrlId[0].id;
+    const url_id = getUrlId.rows[0].id;
 
     const body = {
       id: url_id,
       shortUrl: shortenUrl,
     };
 
-    res.status(201).send(body);
+    return res.status(201).send(body);
   } catch (error) {
     res.status(500).send(error.message);
   }
