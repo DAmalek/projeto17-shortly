@@ -12,5 +12,5 @@ urlRoute.post(
   tokenValidation,
   createShorten
 );
-urlRoute.post("/signIn", validateSchema(urlSchema));
+
 export default urlRoute;

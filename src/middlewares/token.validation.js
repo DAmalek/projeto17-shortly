@@ -1,9 +1,10 @@
 import connection from "../database/database.js";
 
 export async function tokenValidation(req, res, next) {
-  const { url } = req.body;
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
+  const url = req.body;
+  const { Authorization } = req.headers;
+  const token = Authorization?.replace("Bearer ", "");
+  console.log(token);
 
   if (!token) return res.status(401).send("invalid token");
   try {
