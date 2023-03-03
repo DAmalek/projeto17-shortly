@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use([userRoute, urlRoute]);
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5231;
 app.listen(port, () => {
   console.log("server rodando");
 });
