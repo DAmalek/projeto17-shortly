@@ -9,7 +9,7 @@ export async function signUp(req, res) {
     `SELECT * FROM users WHERE email = $1;`,
     [email]
   );
-  console.log(emailExists.rowCount);
+
   if (emailExists.rowCount !== 0) return res.sendStatus(409);
 
   try {
@@ -32,10 +32,10 @@ export async function signUp(req, res) {
 
 export async function signIn(req, res) {
   const { email, password } = req.body;
-
+  console.log();
   try {
     const userExists = await connection.query(
-      `SELECT * FROM user WHERE email = $1`,
+      `SELECT * FROM users WHERE email = $1`,
       [email]
     );
     console.log(userExists.rows);
