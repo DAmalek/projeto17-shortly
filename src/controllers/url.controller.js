@@ -93,10 +93,10 @@ export async function getUserData(req, res) {
         )
       END as "shortenedUrls"
     FROM users
-    LEFT JOIN urls ON users.id = urls."userId"
+    LEFT JOIN urls ON users.id = urls."user_id"
     WHERE users.id = $1
     GROUP BY users.id;`,
-      [user.userId]
+      [user.user_id]
     );
 
     res.status(200).send(query.rows[0]);
@@ -115,7 +115,7 @@ export async function destroyUrl(req, res) {
     ]);
     if (query.rowCount === 0) return res.sendStatus(404);
 
-    if (user.id !== query.rows[0].userId) return res.sendStatus(401);
+    if (user.id !== query.rows[0].user_id) return res.sendStatus(401);
 
     await connection.query("DELETE FROM urls WHERE id=$1;", [id]);
 
