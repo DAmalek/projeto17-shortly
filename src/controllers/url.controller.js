@@ -69,3 +69,30 @@ export async function openUrl(req, res) {
     res.status(500).send(error.message);
   }
 }
+export async function getUserData(req, res) {
+  const userSession = res.locals.userSession;
+
+  try {
+    const query = `SELECT users.id, users.name, CAST(COALESCE(SUM(urls."visitCount"), 0) AS INTEGER) as "visitCount",
+    CASE
+      WHEN COUNT(urls.id) = 0 THEN json_build_array()
+      ELSE json_agg(
+        json_build_object(
+          'id', urls.id,
+          'shortUrl', urls."shortUrl",
+          'url', urls.url,
+          'visitCount', urls."visitCount"
+        )
+      )
+    END as "shortenedUrls"
+    FROM users
+    LEFT JOIN urls ON users.id = urls."user_id"
+    WHERE users.id = $1
+    GROUP BY users.id;`;
+    const userData = await connection.query(query, [userSession.user_id]);
+
+    res.send(userData.rows[0]);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
