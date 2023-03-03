@@ -70,32 +70,36 @@ export async function openUrl(req, res) {
   }
 }
 export async function getUserData(req, res) {
-  const userSession = res.locals.userSession;
+  const user = res.locals.session;
 
   try {
-    const query = `SELECT users.id, users.name, CAST(COALESCE(SUM(urls."visitCount"), 0) AS INTEGER) as "visitCount",
-    CASE
-      WHEN COUNT(urls.id) = 0 THEN json_build_array()
-      ELSE json_agg(
-        json_build_object(
-          'id', urls.id,
-          'shortUrl', urls."shortUrl",
-          'url', urls.url,
-          'visitCount', urls."visitCount"
+    const query = await db.query(
+      `SELECT users.id, users.name, CAST(COALESCE(SUM(urls."visitCount"), 0) AS INTEGER) as "visitCount",
+      CASE
+        WHEN COUNT(urls.id) = 0 THEN json_build_array()
+        ELSE json_agg(
+          json_build_object(
+            'id', urls.id,
+            'shortUrl', urls."shortUrl",
+            'url', urls.url,
+            'visitCount', urls."visitCount"
+          )
         )
-      )
-    END as "shortenedUrls"
+      END as "shortenedUrls"
     FROM users
-    LEFT JOIN urls ON users.id = urls."user_id"
+    LEFT JOIN urls ON users.id = urls."userId"
     WHERE users.id = $1
-    GROUP BY users.id;`;
-    const userData = await connection.query(query, [userSession.user_id]);
+    GROUP BY users.id;`,
+      [user.userId]
+    );
 
-    return res.send(userData.rows[0]);
+    res.status(200).send(query.rows[0]);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error(error);
+    res.status(500).send(error);
   }
 }
+
 export async function destroyUrl(req, res) {
   const { id } = req.params;
   const user = res.locals.session;
